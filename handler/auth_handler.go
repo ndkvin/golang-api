@@ -67,7 +67,7 @@ func (a *authHandler) Login(c echo.Context) error {
 		})
 	}
 
-	_, err := a.authService.Login(req)
+	token, err := a.authService.Login(req)
 
 	if err != nil {
 		return err
@@ -76,7 +76,7 @@ func (a *authHandler) Login(c echo.Context) error {
 	c.JSON(http.StatusOK, dto.WebResponse{
 		Code:   http.StatusOK,
 		Status: "Success",
-		Data:   auth.LoginResponse{Token: "123123123123123"},
+		Data:   auth.LoginResponse{Token: token},
 	})
 
 	return nil

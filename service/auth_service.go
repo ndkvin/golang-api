@@ -13,7 +13,7 @@ import (
 
 type AuthServiceInterface interface {
 	Register(req auth.RegisterRequest) (*model.User, error)
-	Login(req auth.LoginRequest) (*model.User, error)
+	Login(req auth.LoginRequest) (string, error)
 }
 
 type authService struct {
@@ -47,15 +47,20 @@ func (a *authService) Register(req auth.RegisterRequest) (user *model.User, err 
 	return user, nil
 }
 
-func (a *authService) Login(req auth.LoginRequest) (user *model.User, err error) {
-	user, err = a.userRepository.FindByEmail(req.Email)
-	if err != nil && errors.Is(err, gorm.ErrRecordNotFound) {
-		return nil, &customError.NotFound{Message: "User not found"}
+func (a *authService) Login(req auth.LoginRequest) (token string, err error) {
+	user, err := a.userRepository.FindByEmail(req.Email)
+	if errors.Is(err, gorm.ErrRecordNotFound) {
+		return "", &customError.NotFound{Message: "User not found"}
 	}
 
 	if !util.CheckPasswordHash(req.Password, user.Password) {
-		return nil, &customError.BadRequest{Message: "Invalid password"}
+		return "", &customError.BadRequest{Message: "Invalid password"}
 	}
 
-	return user, nil
+	token, err = util.GenerateJWT(user.ID, user.Email)
+	if err != nil {
+		return "", err
+	}
+
+	return token, nil
 }
