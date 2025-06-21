@@ -14,6 +14,7 @@ import (
 
 type LinkHandlerInterface interface {
 	CreateLink(c echo.Context) error
+	VisitLink(c echo.Context) error
 }
 
 type linkHandler struct {
@@ -45,7 +46,7 @@ func (l *linkHandler) CreateLink(c echo.Context) error {
 		})
 	}
 
-	link, err := l.linkService.Create(req, claims.Id)
+	link, err := l.linkService.CreateLink(req, claims.Id)
 
 	if err != nil {
 		return err
@@ -58,4 +59,16 @@ func (l *linkHandler) CreateLink(c echo.Context) error {
 	})
 
 	return nil
+}
+
+func (l *linkHandler) VisitLink(c echo.Context) error {
+	name := c.Param("name")
+
+	link, err := l.linkService.VisitLink(name)
+
+	if err != nil {
+		return err
+	}
+
+	return c.Redirect(http.StatusMovedPermanently, link.Url)
 }

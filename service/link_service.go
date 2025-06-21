@@ -11,7 +11,8 @@ import (
 )
 
 type LinkServiceInterface interface {
-	Create(req link.CreateLinkRequest, userID uint) (*model.Link, error)
+	CreateLink(req link.CreateLinkRequest, userID uint) (*model.Link, error)
+	VisitLink(name string) (*model.Link, error)
 }
 
 type linkService struct {
@@ -22,7 +23,7 @@ func NewLinkService(linkRepository repository.LinkRepositoryInterface) LinkServi
 	return &linkService{linkRepository}
 }
 
-func (l *linkService) Create(req link.CreateLinkRequest, userID uint) (link *model.Link, err error) {
+func (l *linkService) CreateLink(req link.CreateLinkRequest, userID uint) (link *model.Link, err error) {
 	link, err = l.linkRepository.FindByName(req.Name)
 	if err != nil && !errors.Is(err, gorm.ErrRecordNotFound) {
 		return nil, err
@@ -34,6 +35,15 @@ func (l *linkService) Create(req link.CreateLinkRequest, userID uint) (link *mod
 
 
 	link, err = l.linkRepository.Create(req.Name, req.Url, userID)
+	if err != nil {
+		return nil, err
+	}
+
+	return link, nil
+}
+
+func (l *linkService) VisitLink(name string) (link *model.Link, err error) {
+	link, err = l.linkRepository.FindByName(name)
 	if err != nil {
 		return nil, err
 	}

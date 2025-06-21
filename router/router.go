@@ -29,4 +29,6 @@ func RegisterRouter(e *echo.Echo, handler *handler.Handler) {
 	link.Use(echojwt.WithConfig(config))
 
 	link.POST("", handler.LinkHandler.CreateLink)
+
+	e.GET("/:name", handler.LinkHandler.VisitLink)
 }
