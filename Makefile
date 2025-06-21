@@ -1,10 +1,11 @@
 dev:
-	wire
+	@set -e; \
+	wire; \
 	air -c .air.toml
 
 build:
 	wire
 	go build -o bin/server .
 
-run:
+run: build
 	 ./bin/server

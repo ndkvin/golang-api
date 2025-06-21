@@ -15,9 +15,15 @@ import (
 func InitializeWire() (*handler.Handler, error) {
 	wire.Build(
 		database.NewDatabase,
+
 		repository.NewUserRepository,
+		repository.NewLinkRepository,
+
 		service.NewAuthService,
+		service.NewLinkService,
+
 		handler.NewAuthHandler,
+		handler.NewLinkHandler,
 		handler.NewHandler,
 	)
 	return &handler.Handler{}, nil

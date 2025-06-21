@@ -20,6 +20,9 @@ func InitializeWire() (*handler.Handler, error) {
 	userRepositoryInterface := repository.NewUserRepository(db)
 	authServiceInterface := service.NewAuthService(userRepositoryInterface)
 	authHandlerInterface := handler.NewAuthHandler(authServiceInterface)
-	handlerHandler := handler.NewHandler(authHandlerInterface)
+	linkRepositoryInterface := repository.NewLinkRepository(db)
+	linkServiceInterface := service.NewLinkService(linkRepositoryInterface)
+	linkHandlerInterface := handler.NewLinkHandler(linkServiceInterface)
+	handlerHandler := handler.NewHandler(authHandlerInterface, linkHandlerInterface)
 	return handlerHandler, nil
 }

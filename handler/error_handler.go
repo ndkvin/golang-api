@@ -1,37 +1,46 @@
 package handler
 
 import (
+	"fmt"
 	"log"
 	"net/http"
 	"shortlink/dto"
 	customError "shortlink/error"
+	"strings"
 
 	"github.com/labstack/echo/v4"
 )
 
 func ErrorHandler(err error, c echo.Context) {
-	switch e := err.(type) {
+	var code = http.StatusInternalServerError
+	var message interface{} = "Internal Server Error"
 
+	switch e := err.(type) {
 	case *customError.BadRequest:
-		c.JSON(http.StatusBadRequest, dto.WebResponse{
-			Code:   http.StatusBadRequest,
-			Status: "Bad Request",
-			Data:   e.Message,
-		})
+		code = http.StatusBadRequest
+		message = e.Message
 
 	case *customError.NotFound:
-		c.JSON(http.StatusNotFound, dto.WebResponse{
-			Code:   http.StatusNotFound,
-			Status: "Not Found",
-			Data:   e.Message,
-		})
+		code = http.StatusNotFound
+		message = e.Message
+
+	case *echo.HTTPError:
+		msg := fmt.Sprintf("%v", e.Message)
+		if strings.Contains(strings.ToLower(msg), "jwt") { 
+			code = http.StatusUnauthorized
+			message = e.Message
+		} else {
+			code = e.Code
+			message = e.Message
+		}
 
 	default:
 		log.Printf("internal error: %+v", err)
-		c.JSON(http.StatusInternalServerError, dto.WebResponse{
-			Code:   http.StatusBadRequest,
-			Status: "Internal Server Error",
-			Data:   "Internal Server Error",
-		})
 	}
+
+	_ = c.JSON(code, dto.WebResponse{
+		Code:   code,
+		Status: http.StatusText(code),
+		Data:   message,
+	})
 }

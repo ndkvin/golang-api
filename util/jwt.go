@@ -33,6 +33,13 @@ func GenerateJWT(id uint, email string) (token string, err error) {
 	if err != nil {
 		return "", err
 	}
-	
+
 	return token, nil
+}
+
+func VerifyJWT(token *jwt.Token) (claims *JwtClaims, err error) {
+
+	claims = token.Claims.(*JwtClaims)
+
+	return
 }
