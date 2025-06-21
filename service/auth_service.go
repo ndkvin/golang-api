@@ -13,6 +13,7 @@ import (
 
 type AuthServiceInterface interface {
 	Register(req auth.RegisterRequest) (*model.User, error)
+	Login(req auth.LoginRequest) (*model.User, error)
 }
 
 type authService struct {
@@ -41,6 +42,19 @@ func (a *authService) Register(req auth.RegisterRequest) (user *model.User, err 
 	user, err = a.userRepository.Create(req.Email, hashedPassword)
 	if err != nil {
 		return nil, err
+	}
+
+	return user, nil
+}
+
+func (a *authService) Login(req auth.LoginRequest) (user *model.User, err error) {
+	user, err = a.userRepository.FindByEmail(req.Email)
+	if err != nil && errors.Is(err, gorm.ErrRecordNotFound) {
+		return nil, &customError.NotFound{Message: "User not found"}
+	}
+
+	if !util.CheckPasswordHash(req.Password, user.Password) {
+		return nil, &customError.BadRequest{Message: "Invalid password"}
 	}
 
 	return user, nil

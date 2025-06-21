@@ -13,6 +13,7 @@ import (
 
 type AuthHandlerInterface interface {
 	Register(c echo.Context) error
+	Login(c echo.Context) error
 }
 
 type authHandler struct {
@@ -51,3 +52,33 @@ func (a *authHandler) Register(c echo.Context) error {
 
 	return nil
 }
+
+func (a *authHandler) Login(c echo.Context) error {
+	var req auth.LoginRequest
+	if err := c.Bind(&req); err != nil {
+		return &customError.BadRequest{Message: "Invalid request body"}
+	}
+
+	if err := c.Validate(req); err != nil {
+		return c.JSON(http.StatusBadRequest, dto.WebResponse{
+			Code:   http.StatusBadRequest,
+			Status: "Bad Request",
+			Data:  util.ParseValidationError(err),
+		})
+	}
+
+	_, err := a.authService.Login(req)
+
+	if err != nil {
+		return err
+	}
+
+	c.JSON(http.StatusOK, dto.WebResponse{
+		Code:   http.StatusOK,
+		Status: "Success",
+		Data:   auth.LoginResponse{Token: "123123123123123"},
+	})
+
+	return nil
+}
+

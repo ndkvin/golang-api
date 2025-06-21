@@ -8,4 +8,5 @@ import (
 
 func RegisterRouter(e *echo.Echo, handler *handler.Handler) {
 	e.POST("/register", handler.AuthHandler.Register)
+	e.POST("/login", handler.AuthHandler.Login)
 }

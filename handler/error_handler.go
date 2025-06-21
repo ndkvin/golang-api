@@ -19,6 +19,13 @@ func ErrorHandler(err error, c echo.Context) {
 			Data:   e.Message,
 		})
 
+	case *customError.NotFound:
+		c.JSON(http.StatusNotFound, dto.WebResponse{
+			Code:   http.StatusNotFound,
+			Status: "Not Found",
+			Data:   e.Message,
+		})
+
 	default:
 		log.Printf("internal error: %+v", err)
 		c.JSON(http.StatusInternalServerError, dto.WebResponse{
