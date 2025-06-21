@@ -1,6 +1,7 @@
 package main
 
 import (
+	"shortlink/handler"
 	"shortlink/router"
 	"shortlink/util"
 
@@ -10,6 +11,7 @@ import (
 func main() {
 	e := echo.New()
 	e.Validator = util.NewCustomValidator()
+	e.HTTPErrorHandler = handler.ErrorHandler
 
 	handler, err := InitializeWire()
 	if err != nil {
